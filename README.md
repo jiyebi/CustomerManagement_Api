@@ -10,7 +10,7 @@ Technology Stack
 
 Simple SpringBoot Rest API with the TDD approach for customer management.
 
-Through the Rest endpoints one could get all customers, get a specific customer with use of Identification number, create a new customer, update an existing customer 
+Through the Rest endpoints one could get all customers, get a specific customer with use of unique Identification number, create a new customer, update an existing customer 
 and delete a given customer
 
 Trying as much as possible to keep the code clean and simple. 
