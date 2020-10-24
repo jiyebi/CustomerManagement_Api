@@ -6,5 +6,5 @@ import de.springApp.guestBook.entities.CustomerEntry;
 import java.util.Optional;
 
 public interface CustomerRepository extends JpaRepository<CustomerEntry, Long>{
-    Optional<CustomerEntry> findByLastName(String lastName);
+    Optional<CustomerEntry> findByEmail(String email);
 }

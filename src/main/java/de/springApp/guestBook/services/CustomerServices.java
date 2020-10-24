@@ -3,24 +3,19 @@ package de.springApp.guestBook.services;
 import com.sun.javafx.tools.packager.Log;
 import de.springApp.guestBook.entities.CustomerEntry;
 import de.springApp.guestBook.repository.CustomerRepository;
-import lombok.extern.log4j.Log4j;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
+
+import static java.util.Objects.*;
 
 @Service
-//@Log4j
 public class CustomerServices {
 
+    @Autowired
     private CustomerRepository customerRepository;
-     Logger log = new Logger();
-
-    public CustomerServices(){
-        this.customerRepository = customerRepository;
-    }
 
     /*
      * getAllCustomers: this method calls the findAll method
@@ -33,9 +28,6 @@ public class CustomerServices {
      * @Return: returns a list of Customers .
      * */
     public List<CustomerEntry> getAllCustomers(){
-        if (customerRepository.findAll() == null){
-        throw new RuntimeException("the Customer list is empty!");
-        }
         Log.debug("successfully returned the list of customers.");
         return customerRepository.findAll();
     }
@@ -53,32 +45,11 @@ public class CustomerServices {
     * @Return: returns an Optional of Type Customer.
     * */
     public Optional getCustomerById(Long customer_id){
-        if (customerRepository.findById(customer_id) == null){
-        throw new RuntimeException("there is no customer with the given Id.");
-        }
+        requireNonNull(customerRepository.findById(customer_id));
         Log.debug("successfully returned the customer with the id: " + customer_id);
         return customerRepository.findById(customer_id);
     }
 
-    /*
-     * getCustomerByLastName: this method calls the findByLastName Method of the
-     *                  CustomerRepository to get a customer(s) with a
-     *                  given lastName.
-     *
-     * @Exception: throws a Runtime Exception when no customer is found
-     *             with the given lastName.
-     *
-     * @Param: customerLastName ==> the given customer lastName to be search for.
-     *
-     * @Return: returns an Optional of Type CustomerEntry.
-     * */
-    public Optional<CustomerEntry> getCustomerByLastName(String CustomerLastName){
-        if (customerRepository.findByLastName(CustomerLastName) == null){
-            throw new RuntimeException("there is no customer with the given lastName.");
-        }
-        Log.debug("successfully returned the customer(s) with the lastName: " + CustomerLastName);
-        return customerRepository.findByLastName(CustomerLastName);
-    }
 
     /*
     * createCustomer: this method calls the save method of the customerRepository
@@ -88,10 +59,12 @@ public class CustomerServices {
     *
     * @Return: returns the created customer.
     * */
-    public CustomerEntry createCustomer(CustomerEntry customerToBeCreated){
-       customerRepository.save(customerToBeCreated);
+    public void createCustomer(CustomerEntry customerToBeCreated){
+        if (customerRepository.findByEmail(customerToBeCreated.getEmail()).isPresent()){
+            throw new RuntimeException("A customer already exists with the given email…");
+        }
        Log.debug("the customer with the customer_id: " + customerToBeCreated.getCustomerID() + "was successfully created.");
-       return customerToBeCreated;
+     customerRepository.save(customerToBeCreated);
     }
 
     /*
@@ -123,7 +96,7 @@ public class CustomerServices {
             Log.debug("successfully updated the customer with the id: " + customer_id);
             return customerRepository.save(existingCustomer);
         }
-        return null;
+             return null;
     }
 
     /*
@@ -136,9 +109,9 @@ public class CustomerServices {
     * @Param: takes the customer_id of the customer to be deleted as a parameter.
     * */
     public void deleteCustomer(Long customer_id){
-        if (customerRepository.findById(customer_id) != null ) {
+        requireNonNull(customerRepository.findById(customer_id));
             Log.debug("successfully deleted the customer with id: " + customer_id);
             customerRepository.deleteById(customer_id);
-        }
     }
 }
+

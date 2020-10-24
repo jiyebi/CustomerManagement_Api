@@ -11,11 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import de.springApp.guestBook.entities.CustomerEntry;
 import de.springApp.guestBook.repository.CustomerRepository;
@@ -27,41 +23,32 @@ public class CustomerController {
 
 	private final Logger log = LoggerFactory.getLogger(CustomerController.class);
 
-	private CustomerServices customerServices;
+	private final CustomerServices customerServices;
 
-	public CustomerController(CustomerServices customerServices){ this.customerServices = customerServices;}
+	public CustomerController(CustomerServices customerServices) {
+		this.customerServices = customerServices;
+	}
 
-
-    /*
+	/*
     *
     * */
 	@RequestMapping(value = "/",
-			method = RequestMethod.GET,
-			produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> getAllCustomers(){
-		return ResponseEntity.ok(customerServices.getAllCustomers());
+		method = RequestMethod.GET,
+		produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<CustomerEntry>> getAllCustomers(){
+	        return new ResponseEntity<>(customerServices.getAllCustomers(),
+			                    HttpStatus.OK);
 	}
 
 	
 	/*
 	*
 	* */
-	@RequestMapping(value = "/{customerID}",
+	@RequestMapping(value = "{customer_id}",
 			method = RequestMethod.GET,
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> getCustomerWithId(@PathVariable Long customerID){
-		return ResponseEntity.ok(customerServices.getCustomerById(customerID));
-	}
-
-
-	/*
-	 *
-	 * */
-	@RequestMapping(value = "/{customerLastName}",
-			method = RequestMethod.GET,
-			produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getCustomerWithLastName(@PathVariable String customerLastName){
-		return ResponseEntity.ok(customerServices.getCustomerByLastName(customerLastName));
+	public ResponseEntity<Optional> getCustomerWithId(@PathVariable Long customer_id){
+	        return new ResponseEntity<Optional>(customerServices.getCustomerById(customer_id),HttpStatus.OK);
 	}
 
 
@@ -72,31 +59,33 @@ public class CustomerController {
 			method = RequestMethod.POST,
 			produces = MediaType.APPLICATION_JSON_VALUE,
 			consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> createCustomer(@RequestBody CustomerEntry newCustomerEntry){
-		return ResponseEntity.ok(customerServices.createCustomer(newCustomerEntry));
+	public ResponseEntity<Void> createCustomer(@RequestBody CustomerEntry newCustomerEntry){
+	       customerServices.createCustomer(newCustomerEntry);
+		   return new ResponseEntity<Void>(HttpStatus.OK);
 	}
 
 
 	/*
 	 *
 	 * */
-	@RequestMapping(value = "/",
-			method = RequestMethod.POST,
+	@RequestMapping(value = "{customer_id}",
+			method = RequestMethod.PUT,
 			produces = MediaType.APPLICATION_JSON_VALUE,
 			consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> updateCustomer(@PathVariable Long customer_id, @RequestBody CustomerEntry newCustomerEntry){
-		return ResponseEntity.ok(customerServices.updateCustomer(customer_id,newCustomerEntry));
+	public ResponseEntity<CustomerEntry> updateCustomer(@PathVariable Long customer_id, @RequestBody CustomerEntry newCustomerEntry){
+	       return new ResponseEntity<CustomerEntry>(customerServices
+				      .updateCustomer(customer_id,newCustomerEntry),HttpStatus.OK);
 	}
 
 
 	/*
 	*
 	* */
-	@RequestMapping(value = "/",
+	@RequestMapping(value = "{customer_id}",
 			method = RequestMethod.DELETE
 			)
-	public  ResponseEntity<Void> deleteCustomer(@PathVariable Long customerID){
-		customerServices.deleteCustomer(customerID);
+	public ResponseEntity<Void> deleteCustomer(@PathVariable Long customer_id){
+		customerServices.deleteCustomer(customer_id);
 		return new ResponseEntity<Void>(HttpStatus.OK);	
 	}
 
